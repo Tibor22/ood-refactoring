@@ -62,7 +62,32 @@ class Cinema {
     this.films.push({ name: movieName, rating: rating, duration: duration });
   }
 
-  getDates(startTime, endTime) {}
+  checkForMovieOverlap(newMovieStart, newMovieEnd, currShowing) {
+    console.log(newMovieStart, newMovieEnd, currShowing);
+    //Get the start time in hours and minutes
+    const startTime = currShowing.startTime;
+    if (!this.parseTime(startTime)) {
+      return "Invalid start time";
+    }
+    const [startTimeHours, startTimeMins] = this.parseTime(startTime);
+    //Get the end time in hours and minutes
+    const endTime = currShowing.endTime;
+    if (!this.parseTime(endTime)) {
+      return "Invalid end time";
+    }
+    const [endTimeHours, endTimeMins] = this.parseTime(endTime);
+    //if intended start time is between start and end
+    const currMovieStart = startTimeHours * 60 + startTimeMins;
+    const currMovieEnd = endTimeHours * 60 + endTimeMins;
+
+    if (
+      (newMovieStart > currMovieStart && newMovieStart < currMovieEnd) ||
+      (newMovieEnd > currMovieStart && newMovieEnd < currMovieEnd) ||
+      (newMovieStart < currMovieStart && newMovieEnd > currMovieEnd)
+    ) {
+      return true;
+    }
+  }
 
   //Add a showing for a specific film to a screen at the provided start time
   addFilmToScreen(movie, screenName, startTime) {
@@ -83,18 +108,11 @@ class Cinema {
       return "Invalid duration";
     }
     const [durationHours, durationMins] = this.parseTime(film.duration);
-
     //Add the running time to the duration
-    let intendedEndTimeHours = intendedStartTimeHours + durationHours;
-
+    const intendedEndTimeHours = intendedStartTimeHours + durationHours;
     //It takes 20 minutes to clean the screen so add on 20 minutes to the duration
     //when working out the end time
-    let intendedEndTimeMinutes = intendedStartTimeMinutes + durationMins + 20;
-    if (intendedEndTimeMinutes >= 60) {
-      intendedEndTimeHours += Math.floor(intendedEndTimeMinutes / 60);
-      intendedEndTimeMinutes = intendedEndTimeMinutes % 60;
-    }
-
+    const intendedEndTimeMinutes = intendedStartTimeMinutes + durationMins + 20;
     if (intendedEndTimeHours >= 24) {
       return "Invalid start time - film ends after midnight";
     }
@@ -103,62 +121,23 @@ class Cinema {
       return "Invalid screen";
     }
 
-    let theatre = this.find(screenName, this.screens);
+    const theatre = this.find(screenName, this.screens);
     //Go through all existing showings for this film and make
     //sure the start time does not overlap
-    let error = false;
-    console.log("THEATHRE", theatre.showings);
-
+    const newMovieStart =
+      intendedStartTimeHours * 60 + intendedStartTimeMinutes;
+    const newMovieEnd = intendedEndTimeHours * 60 + intendedEndTimeMinutes;
     for (let i = 0; i < theatre.showings.length; i++) {
-      //Get the start time in hours and minutes
-      const startTime = theatre.showings[i].startTime;
-
-      if (!this.parseTime(startTime)) {
-        return "Invalid start time";
-      }
-
-      const [startTimeHours, startTimeMins] = this.parseTime(startTime);
-
-      //Get the end time in hours and minutes
-      const endTime = theatre.showings[i].endTime;
-      if (!this.parseTime(endTime)) {
-        return "Invalid end time";
-      }
-      const [endTimeHours, endTimeMins] = this.parseTime(endTime);
-
-      //if intended start time is between start and end
-      const newMovieStart = new Date();
-      newMovieStart.setMinutes(intendedStartTimeMinutes);
-      newMovieStart.setHours(intendedStartTimeHours);
-
-      console.log("MOVIE END:", intendedEndTimeHours, intendedEndTimeMinutes);
-      const newMovieEnd = new Date();
-      newMovieEnd.setMinutes(intendedEndTimeMinutes);
-      newMovieEnd.setHours(intendedEndTimeHours);
-      console.log("END DATE:", newMovieEnd);
-
-      const currMovieStart = new Date();
-      currMovieStart.setMinutes(startTimeMins);
-      currMovieStart.setHours(startTimeHours);
-
-      const currMovieEnd = new Date();
-      currMovieEnd.setMinutes(endTimeMins);
-      currMovieEnd.setHours(endTimeHours);
-
       if (
-        (newMovieStart > currMovieStart && newMovieStart < currMovieEnd) ||
-        (newMovieEnd > currMovieStart && newMovieEnd < currMovieEnd) ||
-        (newMovieStart < currMovieStart && newMovieEnd > currMovieEnd)
+        this.checkForMovieOverlap(
+          newMovieStart,
+          newMovieEnd,
+          theatre.showings[i]
+        )
       ) {
-        error = true;
-        break;
+        return "Time unavailable";
       }
     }
-
-    if (error) {
-      return "Time unavailable";
-    }
-
     //Add the new start time and end time to the showing
     theatre.showings.push({
       film: film,
