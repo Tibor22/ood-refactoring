@@ -1,5 +1,22 @@
 {
   "dependencies": {
     "jasmine": "^4.0.2"
-  }
+  },
+  "name": "ood-refactoring",
+  "description": "* Explain the meaning of the term \"refactoring\"\r * Explain how code smells help to identify possible refactoring opportunities\r * Demonstrate refactoring a program to improve quality while using tests to verify correctness",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tibor22/ood-refactoring.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tibor22/ood-refactoring/issues"
+  },
+  "homepage": "https://github.com/Tibor22/ood-refactoring#readme"
 }
