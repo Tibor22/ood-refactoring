@@ -7,9 +7,9 @@ console.log(cinema.addScreen("Screen #2", 100));
 console.log(cinema.addFilm("Dune", "12", "2:30"));
 console.log(cinema.addFilm("The Alpinist", "15", "1:15"));
 
-console.log(cinema.addFilmToScreen("The Alpinist", "Screen #1", "10:00"));
-console.log(cinema.addFilmToScreen("The Alpinist", "Screen #2", "10:00"));
-console.log(cinema.addFilmToScreen("The Alpinist", "Screen #2", "11:30"));
+// console.log(cinema.addFilmToScreen("The Alpinist", "Screen #1", "10:00"));
+// console.log(cinema.addFilmToScreen("The Alpinist", "Screen #2", "10:00"));
+// console.log(cinema.addFilmToScreen("The Alpinist", "Screen #2", "11:30"));
 
 console.log(cinema.addFilmToScreen("Dune", "Screen #1", "12:40"));
 console.log(cinema.addFilmToScreen("Dune", "Screen #1", "19:40"));

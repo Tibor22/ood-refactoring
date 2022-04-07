@@ -29,7 +29,7 @@ class Cinema {
     this.screens.push(screen);
   }
 
-  parseTime(duration, errorMsg) {
+  parseTime(duration) {
     const result = /^(\d?\d):(\d\d)$/.exec(duration);
     if (result == null) {
       return false;
@@ -62,10 +62,10 @@ class Cinema {
     this.films.push({ name: movieName, rating: rating, duration: duration });
   }
 
+  getDates(startTime, endTime) {}
+
   //Add a showing for a specific film to a screen at the provided start time
   addFilmToScreen(movie, screenName, startTime) {
-    let result = /^(\d?\d):(\d\d)$/.exec(startTime);
-    // console.log(result);
     if (!this.parseTime(startTime)) {
       return "Invalid start time";
     }
@@ -98,72 +98,57 @@ class Cinema {
     if (intendedEndTimeHours >= 24) {
       return "Invalid start time - film ends after midnight";
     }
-
     //Find the screen by name
     if (this.find(screenName, this.screens) === undefined) {
       return "Invalid screen";
     }
+
     let theatre = this.find(screenName, this.screens);
     //Go through all existing showings for this film and make
     //sure the start time does not overlap
     let error = false;
-    console.log("THEATHRE", theatre);
+    console.log("THEATHRE", theatre.showings);
+
     for (let i = 0; i < theatre.showings.length; i++) {
       //Get the start time in hours and minutes
       const startTime = theatre.showings[i].startTime;
-      result = /^(\d?\d):(\d\d)$/.exec(startTime);
-      if (result == null) {
+
+      if (!this.parseTime(startTime)) {
         return "Invalid start time";
       }
 
-      const startTimeHours = parseInt(result[1]);
-      const startTimeMins = parseInt(result[2]);
-      if (startTimeHours <= 0 || startTimeMins > 60) {
-        return "Invalid start time";
-      }
+      const [startTimeHours, startTimeMins] = this.parseTime(startTime);
 
       //Get the end time in hours and minutes
       const endTime = theatre.showings[i].endTime;
-      result = /^(\d?\d):(\d\d)$/.exec(endTime);
-      if (result == null) {
+      if (!this.parseTime(endTime)) {
         return "Invalid end time";
       }
-
-      const endTimeHours = parseInt(result[1]);
-      const endTimeMins = parseInt(result[2]);
-      if (endTimeHours <= 0 || endTimeMins > 60) {
-        return "Invalid end time";
-      }
+      const [endTimeHours, endTimeMins] = this.parseTime(endTime);
 
       //if intended start time is between start and end
-      const d1 = new Date();
-      d1.setMilliseconds(0);
-      d1.setSeconds(0);
-      d1.setMinutes(intendedStartTimeMinutes);
-      d1.setHours(intendedStartTimeHours);
+      const newMovieStart = new Date();
+      newMovieStart.setMinutes(intendedStartTimeMinutes);
+      newMovieStart.setHours(intendedStartTimeHours);
 
-      const d2 = new Date();
-      d2.setMilliseconds(0);
-      d2.setSeconds(0);
-      d2.setMinutes(intendedEndTimeMinutes);
-      d2.setHours(intendedEndTimeHours);
+      console.log("MOVIE END:", intendedEndTimeHours, intendedEndTimeMinutes);
+      const newMovieEnd = new Date();
+      newMovieEnd.setMinutes(intendedEndTimeMinutes);
+      newMovieEnd.setHours(intendedEndTimeHours);
+      console.log("END DATE:", newMovieEnd);
 
-      const d3 = new Date();
-      d3.setMilliseconds(0);
-      d3.setSeconds(0);
-      d3.setMinutes(startTimeMins);
-      d3.setHours(startTimeHours);
+      const currMovieStart = new Date();
+      currMovieStart.setMinutes(startTimeMins);
+      currMovieStart.setHours(startTimeHours);
 
-      const d4 = new Date();
-      d4.setMilliseconds(0);
-      d4.setSeconds(0);
-      d4.setMinutes(endTimeMins);
-      d4.setHours(endTimeHours);
+      const currMovieEnd = new Date();
+      currMovieEnd.setMinutes(endTimeMins);
+      currMovieEnd.setHours(endTimeHours);
 
       if (
-        (d1 > d3 && d1 < d4) ||
-        (d2 > d3 && d2 < d4) ||
-        (d1 < d3 && d2 > d4)
+        (newMovieStart > currMovieStart && newMovieStart < currMovieEnd) ||
+        (newMovieEnd > currMovieStart && newMovieEnd < currMovieEnd) ||
+        (newMovieStart < currMovieStart && newMovieEnd > currMovieEnd)
       ) {
         error = true;
         break;
